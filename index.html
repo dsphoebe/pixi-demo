@@ -9,11 +9,8 @@
   <script src="https://cdn.bootcss.com/pixi.js/5.0.0-rc/pixi.min.js"></script>
 <body>
   <script>
-    let type = 'WebGL'
-    if (!PIXI.utils.isWebGLSupported()) {
-      type = 'canvas'
-    }
-    PIXI.utils.sayHello(type)
+    let app = new PIXI.Application({width: 256, height: 256});
+    document.body.appendChild(app.view)
   </script>
 </body>
 </html>
