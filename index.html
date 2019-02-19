@@ -5,12 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Hello World</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+  </style>
 </head>
   <script src="https://cdn.bootcss.com/pixi.js/5.0.0-rc/pixi.min.js"></script>
 <body>
   <script>
-    let app = new PIXI.Application({width: 256, height: 256});
-    document.body.appendChild(app.view)
+    let app = new PIXI.Application({
+      width: 256,
+      height: 256,
+      antialias: true, // 使得字体边界和几何图形更加圆滑
+      transparent: false,
+      resolutaion: 1, // 兼容不同分辨率，像素密度平台
+      forceCanvas: true, // Pixi 会优先用 WebGL 渲染，这里强制用 Canvas 渲染
+    });
+    // 设置画布背景色
+    app.renderer.backgroundColor = 0xff0000;
+    // 获取画布的宽高
+    console.log(app.renderer.view.width, app.renderer.view.height);
+    // autoResize 确认宽搞的格式正确 ❓
+    app.renderer.autoResize = true;
+    // resize 改变 canvas 大小
+    app.renderer.resize(512, 512);
+    // CSS 实现 canvas 满屏
+    app.renderer.view.style.position = 'aboslute'
+    app.renderer.view.style.display = 'block'
+    app.renderer.autoResize = true
+    app.renderer.resize(window.innerWidth, window.innerHeight)
+    document.body.appendChild(app.view);
   </script>
 </body>
 </html>
