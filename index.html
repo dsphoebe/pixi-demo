@@ -36,6 +36,22 @@
     app.renderer.view.style.display = 'block'
     app.renderer.autoResize = true
     app.renderer.resize(window.innerWidth, window.innerHeight)
+
+    // 纹理缓存存储精灵需要的纹理
+    let texture = PIXI.utils.TextureCache['images/cat.png']
+    // 创建一个精灵使用纹理
+    let sprite = new PIXI.Sprite(texture);
+    // loader 加载图像
+    PIXI.loader
+      .add('images/cat.png')
+      .load(setup)
+    
+    function setup() {
+      let cat = new PIXI.Sprite(PIXI.loader.resources["images/cat.png"].texture);
+      app.stage.addChild(cat);
+      // cat.visible = false;
+    }
+
     document.body.appendChild(app.view);
   </script>
 </body>
