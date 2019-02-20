@@ -51,10 +51,48 @@
       .add('images/cat.png')
       .load(setup)
     
+    let cat, state;
+
     function setup() {
-      let cat = new Sprite(resources["images/cat.png"].texture);
+      cat = new Sprite(resources["images/cat.png"].texture);
+      // cat.x = 96;
+      cat.y = 96;
+      cat.position.set(0,20)
+      // 精灵移动速度初始值
+      cat.vx = 0;
+      cat.vy = 0;
+      // 精灵插入到画布
       app.stage.addChild(cat);
+
+      state = play;
+
+      // ticker 移动精灵
+      app.ticker.add(delta => gameLoop(delta))
+      // function gameLoop(delta) {
+      //   cat.vx = 1;
+      //   cat.vy = 1;
+      //   cat.x += cat.vx;
+      //   cat.y += cat.vy;
+      // }
+      function gameLoop(delta) {
+        state(delta);
+      }
+
+      function play(delta) {
+        cat.vx = 1;
+        cat.x += cat.vx;
+      }
+
+      // 通过 requestAnimationFrame 移动精灵
+      // function gameLoop() {
+      //   requestAnimationFrame(gameLoop);
+      //   cat.x += 1;
+      // }
+
+      // 隐藏精灵
       // cat.visible = false;
+
+      // gameLoop();
     }
 
     document.body.appendChild(app.view);
