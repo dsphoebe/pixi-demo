@@ -18,7 +18,10 @@
     let Application = PIXI.Application,
         loader = PIXI.loader,
         resources = PIXI.loader.resources,
-        Sprite = PIXI.Sprite;
+        Sprite = PIXI.Sprite,
+        message,
+        style,
+        roundBox;
 
     let app = new Application({
       width: 256,
@@ -32,14 +35,14 @@
     app.renderer.backgroundColor = 0xff0000;
     // 获取画布的宽高
     console.log(app.renderer.view.width, app.renderer.view.height);
-    // autoResize 确认宽搞的格式正确 ❓
-    app.renderer.autoResize = true;
+    // autoDensity 确认宽搞的格式正确 ❓
+    app.renderer.autoDensity = true;
     // resize 改变 canvas 大小
     app.renderer.resize(512, 512);
     // CSS 实现 canvas 满屏
     app.renderer.view.style.position = 'aboslute'
     app.renderer.view.style.display = 'block'
-    app.renderer.autoResize = true
+    app.renderer.autoDensity = true
     app.renderer.resize(window.innerWidth, window.innerHeight)
 
     // 纹理缓存存储精灵需要的纹理
@@ -81,6 +84,13 @@
       function play(delta) {
         cat.vx = 1;
         cat.x += cat.vx;
+        if (hitTestRectangle(cat, roundBox)) {
+          message.text = 'hit!'
+          roundBox.tint = 0xff3300;
+        } else {
+          message.text = 'No collision...'
+          roundBox.tint = 0xccff99;
+        }
       }
 
       // 通过 requestAnimationFrame 移动精灵
@@ -93,9 +103,207 @@
       // cat.visible = false;
 
       // gameLoop();
+
+      let left = keyboard(37),
+          up = keyboard(38),
+          right = keyboard(39),
+          down = keyboard(40);
+      //Left arrow key `press` method
+      left.press = () => {
+        //Change the cat's velocity when the key is pressed
+        cat.vx = -5;
+        cat.vy = 0;
+      };
+
+      //Left arrow key `release` method
+      left.release = () => {
+        //If the left arrow has been released, and the right arrow isn't down,
+        //and the cat isn't moving vertically:
+        //Stop the cat
+        if (!right.isDown && cat.vy === 0) {
+          cat.vx = 0;
+        }
+      };
+
+      //Up
+      up.press = () => {
+        cat.vy = -5;
+        cat.vx = 0;
+      };
+      up.release = () => {
+        if (!down.isDown && cat.vx === 0) {
+          cat.vy = 0;
+        }
+      };
+
+      //Right
+      right.press = () => {
+        cat.vx = 5;
+        cat.vy = 0;
+      };
+      right.release = () => {
+        if (!left.isDown && cat.vy === 0) {
+          cat.vx = 0;
+        }
+      };
+
+      //Down
+      down.press = () => {
+        cat.vy = 5;
+        cat.vx = 0;
+      };
+      down.release = () => {
+        if (!up.isDown && cat.vx === 0) {
+          cat.vy = 0;
+        }
+      };
+  }
+
+
+
+  function keyboard(keyCode) {
+    let key = {};
+    key.code = keyCode;
+    key.isDown = false;
+    key.isUp = true;
+    key.press = undefined;
+    key.release = undefined;
+
+    key.downHandler = event => {
+      if (event.keyCode === key.code) {
+        if (key.isUp && key.press) {
+          key.press()
+        }
+        key.isDown = true;
+        key.isUp = false;
+      }
+      event.preventDefault();
+    };
+
+    key.upHandler = event => {
+      if (event.keyCode === key.code) {
+        if (key.isDown && key.release) {
+          key.release();
+        }
+        key.isDown = false;
+        key.isUp = false;
+      }
+      event.preventDefault();
     }
 
-    document.body.appendChild(app.view);
+    window.addEventListener(
+      'keyDown', key.downloadHandler.bind(key), false
+    );
+
+    window.addEventListener(
+      'keyup', key.upHandler.bind(key), false
+    );
+
+    return key;
+  }
+
+  let rectangle = new PIXI.Graphics();
+
+  rectangle.beginFill(0x66ccff);
+  rectangle.lineStyle(4, 0xffff00, 1);
+  rectangle.drawRect(0,0,100,100);
+  rectangle.endFill();
+  rectangle.x = 100;
+  rectangle.y = 100;
+
+  app.stage.addChild(rectangle);
+
+  let circle = new PIXI.Graphics();
+  circle.beginFill(0x9966ff);
+  circle.drawCircle(0,0,32);
+  circle.x = 60;
+  circle.y = 130;
+  app.stage.addChild(circle)
+
+  let ellipse = new PIXI.Graphics();
+  ellipse.beginFill(0xFFFF00);
+  ellipse.drawEllipse(0,0,50,20);
+  ellipse.endFill();
+  ellipse.x = 200;
+  ellipse.y = 500;
+  app.stage.addChild(ellipse);
+
+  roundBox = new PIXI.Graphics();
+  roundBox.lineStyle(4,0x99ccff,1);
+  roundBox.beginFill(0xff9933);
+  roundBox.drawRoundedRect(0,0,84,68,10);
+  roundBox.endFill()
+  roundBox.x = 400;
+  roundBox.y = 40
+  app.stage.addChild(roundBox)
+
+  let line = new PIXI.Graphics()
+  line.lineStyle(4, 0xFFFFFF, 1);
+  line.moveTo(0,0)
+  line.lineTo(80,50)
+  line.x = 32
+  line.y = 32
+  app.stage.addChild(line)
+
+  let triangle = new PIXI.Graphics();
+  triangle.beginFill(0x66ff00)
+  triangle.drawPolygon([
+    -32, 64,
+    32, 64,
+    0, 0
+  ]);
+  triangle.endFill()
+  triangle.x = 250;
+  triangle.y = 250;
+  app.stage.addChild(triangle);
+
+  style = new PIXI.TextStyle({
+    fontFamily: 'Arail',
+    fontSize: 36,
+    fill: 'white',
+    stroke: '#ff3300',
+    strokeThickness: 4,
+    dropShadow: true,
+    dropShadowBlur: 4,
+    dropShadowColor: '#000000',
+    dropShadowAngle: Math.PI / 6,
+    dropShadowDistance: 6,
+  })
+  message = new PIXI.Text('Hello Pixi!', style)
+  app.stage.addChild(message)
+  message.position.set(0, 500)
+
+  message.text = 'Text change'
+  message.style = {fill: 'black', font: '16px PetMe64'}
+
+  message.style = {wordWrap: true, wordWrapWidth: 100, align: 'center'}
+
+  function hitTestRectangle(r1, r2) {
+    let hit, combinedHalfWidths, combinedHalfHeights, vx, vy;
+    hit = false;
+    r1.centerX = r1.x + r1.width / 2;
+    r1.centerY = r1.y + r1.height / 2;
+    r2.centerX = r2.x + r2.width / 2;
+    r2.centerY = r2.x + r2.height / 2;
+    r1.halfWidth = r1.width / 2;
+    r1.halfHeight = r1.height / 2;
+    r2.halfWidth = r2.width / 2;
+    r2.halfHeight = r2.height / 2;
+    vx = r1.centerX - r2.centerX;
+    vy = r1.centerY - r2.cenerY;
+    combinedHalfHeights = r1.halfHeight + r2.halfHeight;
+    combinedHalfWidths = r1.halfWidth + r2.halfWidth;
+    if (Math.abs(vx) < combinedHalfWidths) {
+      if (Math.abs(vy) < combinedHalfHeights) {
+        hit = true;
+      } else {
+        hit = false;
+      }
+      return hit;
+    }
+  }
+
+  document.body.appendChild(app.view);
   </script>
 </body>
 </html>
